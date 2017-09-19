@@ -49,6 +49,7 @@ class BlackJack {
         this.overlay = document.createElement("div");
         this.overlay.className = "overlay";
         this.mainDiv.appendChild(this.overlay);
+        this.playerTotal = 20;
     }
     startGame() {
         this.deck = [];
@@ -63,7 +64,7 @@ class BlackJack {
     playerPick(e) {
         let card = this.randomCard();
         if (card === null)
-            return alert("DECK EMPTY");
+            return this.startGame();
         let image = this.addCardImage(card, this.playerDiv);
         card.image = image;
         this.playerHand.push(card);
@@ -74,6 +75,8 @@ class BlackJack {
         }
         else {
             this.playerScore.innerHTML = this.getBestHand(this.playerHand).toString();
+            if (this.playerHand.length === 2 && this.getBestHand(this.playerHand) === 21 && this.getBestHand(this.houseHand) < 10)
+                this.showResult("player");
         }
     }
     housePlay(e) {
@@ -83,7 +86,7 @@ class BlackJack {
         }
         let card = this.randomCard();
         if (card === null)
-            return alert("DECK EMPTY");
+            return this.startGame();
         let image = this.addCardImage(card, this.houseDiv);
         card.image = image;
         this.houseHand.push(card);
@@ -140,7 +143,7 @@ class BlackJack {
         if (bestHouse > bestPlayer) {
             this.showResult("house");
         }
-        else if (bestHouse == bestPlayer) {
+        else if (bestHouse === bestPlayer && !(bestPlayer === 21 && this.playerHand.length === 2 && this.houseHand.length !== 2)) {
             this.showResult("tie");
         }
         else {
@@ -151,22 +154,24 @@ class BlackJack {
     showResult(res) {
         switch (res) {
             case "player":
+                this.playerTotal++;
                 this.playerScore.style.color = "green";
                 this.houseScore.style.color = "red";
                 this.overlay.style.display = "flex";
-                this.overlay.innerHTML = "<div>PLAYER WINS</div>";
+                this.overlay.innerHTML = "<div>PLAYER WINS<br/>" + this.playerTotal + "</div>";
                 break;
             case "house":
+                this.playerTotal--;
                 this.playerScore.style.color = "red";
                 this.houseScore.style.color = "green";
                 this.overlay.style.display = "flex";
-                this.overlay.innerHTML = "<div>HOUSE WINS</div>";
+                this.overlay.innerHTML = "<div>HOUSE WINS<br/>" + this.playerTotal + "</div>";
                 break;
             case "tie":
                 this.playerScore.style.color = "gray";
                 this.houseScore.style.color = "gray";
                 this.overlay.style.display = "flex";
-                this.overlay.innerHTML = "<div>TIE</div>";
+                this.overlay.innerHTML = "<div>TIE<br/>" + this.playerTotal + "</div>";
                 break;
             default:
                 this.playerScore.style.color = "black";
@@ -280,7 +285,8 @@ class BlackJack {
         return div;
     }
 }
+var game;
 document.addEventListener("DOMContentLoaded", function (e) {
-    var game = new BlackJack();
+    game = new BlackJack();
     game.startGame();
 });
